@@ -16,8 +16,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = load_or_create_config("config.json");
     let keypair: Keypair = generate_keypair_if_not_exists("keypair.json");
 
-    let rpc_client =
-        RpcClient::new_with_commitment(config.rpc_url.clone(), CommitmentConfig::confirmed());
+    let rpc_client = RpcClient::new_with_commitment(config.rpc_url.clone(), CommitmentConfig::confirmed());
     let balance = rpc_client.get_balance(&keypair.pubkey()).await.unwrap();
 
     let user_data = Arc::new(Mutex::new(initialize_user_data(&config.users)));
