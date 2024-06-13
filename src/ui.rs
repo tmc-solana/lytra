@@ -44,7 +44,6 @@ pub async fn run_ui(
                 .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
                 .split(size);
 
-            // Main Application Block with User Data Table
             let main_block = Block::default()
                 .title("lytra v1.0.0")
                 .borders(Borders::ALL)
