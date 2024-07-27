@@ -1,11 +1,17 @@
 {
   "rpc_url": "https://mainnet.helius-rpc.com/?api-key=33abf40d-2081-47ab-b52b-b86fe2c8d589",
-  "users": [
-    "TheMisterFrog",
-    "STACCoverflow",
-    "slippage",
-    "0xMert_",
-    "insydercrypto",
-    "0xNineteen"
-  ]
+  "users": ["tiijacrypto"],
+  "buy_config": {
+    "amount": 0.01,
+    "slippage": 50.0,
+    "use_jito": false,
+    "jito_tip": 0.001
+  },
+  "sell_config": {
+    "slippage": 50.0,
+    "use_jito": true,
+    "jito_tip": 0.001,
+    "auto_sell": false,
+    "sell_at": 100.0
+  }
 }
