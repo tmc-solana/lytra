@@ -1,121 +1,139 @@
-use rand::seq::SliceRandom;
-use rand::thread_rng;
 use regex::Regex;
-use std::error::Error;
-use std::sync::{Arc, Mutex};
-use tokio::task;
-use tokio::time::{self, Duration};
+use serde_json::Value;
+use solana_sdk::pubkey::Pubkey;
+use std::{error::Error, str::FromStr, sync::Arc};
 
-#[derive(Clone)]
-pub struct UserInfo {
-    pub username: String,
-    pub last_tweet: String,
-    pub status: String,
-}
+use crate::State;
 
-pub fn initialize_user_data(users: &[String]) -> Vec<UserInfo> {
-    users
-        .iter()
-        .map(|username| UserInfo {
-            username: username.clone(),
-            last_tweet: "Fetching...".to_string(),
-            status: "Initializing...".to_string(),
-        })
-        .collect()
-}
+pub async fn start_user_tasks(
+    tweet: String,
+    state: State,
+) -> Result<String, Box<dyn Error + Send + Sync>> {
+    let buy_config = tmc_solana_proto::proto::BuyConfig {
+        slippage: state.config.buy_config.slippage,
+        use_jito: state.config.buy_config.use_jito,
+        jito_tip: state.config.buy_config.jito_tip,
+        autobuy: false,
+        prio_fee: 0.0001,
+        sol_amount_left: 0.0,
+        sol_amount_right: 0.0,
+        sol_amount_autobuy: 0.0,
+    };
+    match find_solana_token_address(&tweet).await {
+        Ok(option) => match option {
+            Some(token) => {
+                let market_res = identify_markets(&token).await;
 
-pub fn start_user_tasks(user_data: Arc<Mutex<Vec<UserInfo>>>, users: &[String]) {
-    let tweets = [
-        "https://pump.fun/HDz6x7UcRwpFeg91n6MWkGkqbhnB4ggTjhTWZHArkjs1",
-        "bro https://t.co/mFObpqHzOv",
-        "swap 3sX3Gk9W539fxmdxqUMDyzkPVd3DiZ96FVUfRqbg22Ha",
-        "pickel rich ZK8z8cvqpsGcxY6A5QdA7u1GAmdpcQudX9YFDq7pump",
-        "efewffew
-
-4QPp2fKk6Ta1Q1vKZSCyZCRWir5BY62r6CWEYvsUpump",
-        "buying this: 4QPp2fKk6Ta1Q1vKZSCyZCRWir5BY62r6CWEYvsUpump",
-        "eregregr
-
-8qYH37jFCVbGSjQPdMsf8TDwp1JHTjU1McA8GoCCpump",
-    ];
-    let statuses = [
-        "Found PumpFun Token",
-        "Found Jupiter Token",
-        "Waiting for new Tweet...",
-        "Buying PumpFun Token...",
-        "Buying Jupiter Token...",
-        "Selling Jupiter Token...",
-        "Selling PumpFun Token...",
-    ];
-
-    for (i, username) in users.iter().enumerate() {
-        let user_data = Arc::clone(&user_data);
-        let username = username.clone();
-        task::spawn(async move {
-            let tweet = tweets[i];
-            time::sleep(Duration::from_secs(2)).await;
-            let mut rng = thread_rng();
-
-            if let Some(random_status) = statuses.choose(&mut rng) {
-                let mut user_data = user_data.lock().unwrap();
-                if let Some(user) = user_data.get_mut(i) {
-                    user.last_tweet = tweet.into();
-                    user.status = format!("{random_status}");
+                match market_res {
+                    Ok(market) => match market {
+                        "PumpFun" => {
+                            let status = format!("Found PumpFun Token: {token}");
+                            tokio::task::spawn(async move {
+                                state
+                                    .pumpfun_engine
+                                    .buy(
+                                        state.wallet.insecure_clone(),
+                                        Pubkey::from_str(&token).unwrap(),
+                                        state.config.buy_config.amount,
+                                        state.config.buy_config.slippage,
+                                        buy_config.clone(),
+                                    )
+                                    .await
+                                    .unwrap();
+                            });
+                            return Ok(status);
+                        }
+                        _ => {
+                            let status = format!("Found Jupiter Token: {token}");
+                            tokio::task::spawn(async move {
+                                tracing::info!("{token}");
+                                state
+                                    .jupiter_engine
+                                    .buy(
+                                        state.wallet.insecure_clone(),
+                                        Pubkey::from_str(&token).unwrap(),
+                                        state.config.buy_config.amount,
+                                        state.config.buy_config.slippage,
+                                        buy_config.clone(),
+                                    )
+                                    .await
+                                    .unwrap();
+                            });
+                            return Ok(status);
+                        }
+                    },
+                    Err(_) => {
+                        return Ok("Error Occurred... Waiting for new Tweet".into());
+                    }
                 }
             }
-
-            // match find_solana_token_address(tweet).await {
-            //     Ok(option) => match option {
-            //         Some(token) => {
-            //             let market_res = identify_markets(&token).await;
-            //
-            //             match market_res {
-            //                 Ok(market) => match market {
-            //                     "PumpFun" => {
-            //                         let mut user_data = user_data.lock().unwrap();
-            //                         if let Some(user) = user_data.get_mut(i) {
-            //                             user.last_tweet = tweet.into();
-            //                             user.status = format!("Found PumpFun Token: {token}");
-            //                         }
-            //                     }
-            //                     _ => {
-            //                         let mut user_data = user_data.lock().unwrap();
-            //                         if let Some(user) = user_data.get_mut(i) {
-            //                             user.last_tweet = tweet.into();
-            //                             user.status = format!("Found Jupiter Token: {token}");
-            //                         }
-            //                     }
-            //                 },
-            //                 Err(_) => {
-            //                     let mut user_data = user_data.lock().unwrap();
-            //                     if let Some(user) = user_data.get_mut(i) {
-            //                         user.last_tweet = tweet.into();
-            //                         user.status = "Error Occurred... Waiting for new Tweet".into();
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //         None => {
-            //             let mut user_data = user_data.lock().unwrap();
-            //             if let Some(user) = user_data.get_mut(i) {
-            //                 user.last_tweet = tweet.into();
-            //                 user.status = "Waiting for new Tweet".into();
-            //             }
-            //         }
-            //     },
-            //     Err(_) => {
-            //         let mut user_data = user_data.lock().unwrap();
-            //         if let Some(user) = user_data.get_mut(i) {
-            //             user.last_tweet = tweet.into();
-            //             user.status = "Error Occurred... Waiting for new Tweet".into();
-            //         }
-            //     }
-            // }
-        });
+            None => {
+                return Ok("Waiting for new Tweet".into());
+            }
+        },
+        Err(_) => {
+            return Ok("Error Occurred... Waiting for new Tweet".into());
+        }
     }
 }
 
-// Function to expand a shortened URL
+pub async fn sell_token_task(
+    token: String,
+    amount: f64,
+    state: State,
+) -> Result<(), Box<dyn Error + Send + Sync>> {
+    let market_res = identify_markets(&token).await;
+
+    let sell_config = tmc_solana_proto::proto::SellConfig {
+        slippage: state.config.sell_config.slippage,
+        use_jito: state.config.sell_config.use_jito,
+        jito_tip: state.config.sell_config.jito_tip,
+        prio_fee: 0.0001,
+        sol_amount_left: 0.0,
+        sol_amount_right: 0.0,
+        ..Default::default()
+    };
+
+    match market_res {
+        Ok(market) => match market {
+            "PumpFun" => {
+                tokio::task::spawn(async move {
+                    state
+                        .pumpfun_engine
+                        .sell(
+                            state.wallet.insecure_clone(),
+                            Pubkey::from_str(&token).unwrap(),
+                            amount,
+                            state.config.sell_config.slippage,
+                            sell_config.clone(),
+                        )
+                        .await
+                        .unwrap();
+                });
+            }
+            _ => {
+                tokio::task::spawn(async move {
+                    state
+                        .jupiter_engine
+                        .sell(
+                            state.wallet.insecure_clone(),
+                            Pubkey::from_str(&token).unwrap(),
+                            amount,
+                            state.config.sell_config.slippage,
+                            sell_config.clone(),
+                        )
+                        .await
+                        .unwrap();
+                });
+            }
+        },
+        Err(_) => {
+            return Ok(());
+        }
+    }
+    Ok(())
+}
+
 async fn expand_url(short_url: &str) -> Result<String, Box<dyn Error + Send + Sync>> {
     let client = reqwest::Client::new();
     let response = client.get(short_url).send().await?.error_for_status()?;
@@ -157,6 +175,11 @@ pub async fn identify_markets(mint: &str) -> Result<&str, Box<dyn Error + Send +
         .await?;
 
     if response.status() == reqwest::StatusCode::OK {
+        let data: Value = response.json().await?;
+        let is_raydium = !data["raydium_pool"].is_null();
+        if is_raydium {
+            return Ok("Raydium");
+        }
         return Ok("PumpFun");
     }
     Ok("None")

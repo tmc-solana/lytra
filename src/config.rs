@@ -1,14 +1,32 @@
 use serde::{Deserialize, Serialize};
 use solana_sdk::signature::Keypair;
-use solana_sdk::signer::Signer;
 use std::fs;
-use std::io::{self, Write};
+use std::io::Write;
 use std::path::Path;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct BuyConfig {
+    pub amount: f64,
+    pub slippage: f64,
+    pub use_jito: bool,
+    pub jito_tip: f64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SellConfig {
+    pub slippage: f64,
+    pub use_jito: bool,
+    pub jito_tip: f64,
+    pub auto_sell: bool,
+    pub sell_at: f64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
     pub rpc_url: String,
     pub users: Vec<String>,
+    pub buy_config: BuyConfig,
+    pub sell_config: SellConfig,
 }
 
 pub fn load_config(path: &str) -> Option<Config> {
@@ -16,32 +34,11 @@ pub fn load_config(path: &str) -> Option<Config> {
     serde_json::from_str(&config_str).ok()
 }
 
-pub fn save_config(config: &Config, path: &str) {
-    let config_str = serde_json::to_string_pretty(config).unwrap();
-    fs::write(path, config_str).unwrap();
-}
-
-pub fn get_user_input(prompt: &str) -> String {
-    print!("{}", prompt);
-    io::stdout().flush().unwrap();
-    let mut input = String::new();
-    io::stdin().read_line(&mut input).unwrap();
-    input.trim().to_string()
-}
-
 pub fn load_or_create_config(path: &str) -> Config {
     match load_config(path) {
         Some(config) => config,
         None => {
-            let rpc_url = get_user_input("Enter the Solana RPC URL: ");
-            let users_raw = get_user_input("Enter users to monitor (space between each user): ");
-            let users: Vec<String> = users_raw
-                .split_whitespace()
-                .map(|s| s.to_string())
-                .collect();
-            let config = Config { rpc_url, users };
-            save_config(&config, path);
-            config
+            panic!("No config found");
         }
     }
 }
