@@ -13,7 +13,7 @@ use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_client::nonblocking::tpu_client::TpuClient;
 use solana_client::tpu_client::TpuClientConfig;
 use solana_sdk::commitment_config::CommitmentConfig;
-use solana_sdk::signature::{Keypair, Signer};
+use solana_sdk::signature::Keypair;
 use std::sync::mpsc::{Receiver, Sender};
 use std::sync::{mpsc, Arc};
 use tmc_solana_engine::jupiter::JupiterEngine;
@@ -70,11 +70,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Set the global default subscriber
     tracing::subscriber::set_global_default(subscriber)?;
 
+    // TEST: tui_logger
+    tui_logger::init_logger(log::LevelFilter::Trace)?;
+    tui_logger::set_default_level(log::LevelFilter::Trace);
+
     let config = load_or_create_config("config.json");
     let keypair: Keypair = generate_keypair_if_not_exists("keypair.json");
     tracing::info!("{}", keypair.to_base58_string());
 
-    auth().await?;
+    auth(config.license.clone()).await?;
+    log::info!(target:"app", "Logged in!");
 
     let rpc_client = Arc::new(RpcClient::new_with_commitment(
         config.rpc_url.clone(),
@@ -117,23 +122,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-async fn auth() -> Result<(), Box<dyn std::error::Error>> {
+async fn auth(license: String) -> Result<(), Box<dyn std::error::Error>> {
     let hwid = machine_uid::get()?;
-    let license = "9A2D2B-014108-323FE7-68AA8A-67A34E-V3";
 
     let client = reqwest::Client::builder().build()?;
 
     let mut headers = reqwest::header::HeaderMap::new();
     headers.insert("Content-Type", "application/vnd.api+json".parse()?);
     headers.insert("Accept", "application/vnd.api+json".parse()?);
-
-    let data = "{\n        
-        \"meta\": {\n          
-        \"key\": \"9A2D2B-014108-323FE7-68AA8A-67A34E-V3\",\n          
-        \"scope\": {\n            
-        \"product\": \"7f122c90-2e52-4da8-be7e-ae76a8e0c35c\",\n            
-        \"policy\": \"23145965-850a-4ab5-8afa-aecc11d3ff37\",\n            
-        \"fingerprint\": \"21:25:89:06:89:24:87:32\"\n          }\n        }\n      }";
     let data: Value = json!({
         "meta": {
             "key": license,
@@ -158,20 +154,18 @@ async fn auth() -> Result<(), Box<dyn std::error::Error>> {
 
     let body: Value = res.json().await?;
 
-    println!("{:#?}", body);
-
     let valid = body["meta"]["valid"].as_bool().unwrap_or(false);
     let code = body["meta"]["code"].as_str().unwrap_or("NO CODE");
     let license_id = body["data"]["id"].as_str().unwrap_or("");
 
     if code == "NO_MACHINES" {
         activate(&client, hwid, license.to_string(), license_id.to_string()).await?;
+        println!("Machine got activated... Please restart the application!");
+        std::process::exit(0);
     }
 
-    println!("License is valid: {valid} | reason: {code}");
-
     if !valid {
-        panic!("License is invalid!");
+        panic!("License is invaldid! Please contact the support team | reason: {code}");
     }
 
     Ok(())
@@ -206,7 +200,7 @@ async fn activate(
     headers.insert("Accept", "application/vnd.api+json".parse()?);
     headers.insert("Authorization", bearer.parse()?);
 
-    let res = client
+    let _res = client
         .request(
             reqwest::Method::POST,
             "https://api.keygen.sh/v1/accounts/nidalee-party/machines",
@@ -215,9 +209,6 @@ async fn activate(
         .json(&data)
         .send()
         .await?;
-
-    let body: Value = res.json().await?;
-    println!("{:#?}", body);
 
     Ok(())
 }

@@ -1,7 +1,7 @@
 use regex::Regex;
 use serde_json::Value;
 use solana_sdk::pubkey::Pubkey;
-use std::{error::Error, str::FromStr, sync::Arc};
+use std::{error::Error, str::FromStr};
 
 use crate::State;
 
@@ -94,11 +94,13 @@ pub async fn sell_token_task(
         ..Default::default()
     };
 
+    log::warn!(target:"app", "Selling {token}");
+
     match market_res {
         Ok(market) => match market {
             "PumpFun" => {
                 tokio::task::spawn(async move {
-                    state
+                    let tx_id = state
                         .pumpfun_engine
                         .sell(
                             state.wallet.insecure_clone(),
@@ -109,11 +111,13 @@ pub async fn sell_token_task(
                         )
                         .await
                         .unwrap();
+
+                    log::info!(target:"app", "Sold token! signature: {tx_id}");
                 });
             }
             _ => {
                 tokio::task::spawn(async move {
-                    state
+                    let tx_id = state
                         .jupiter_engine
                         .sell(
                             state.wallet.insecure_clone(),
@@ -124,6 +128,8 @@ pub async fn sell_token_task(
                         )
                         .await
                         .unwrap();
+
+                    log::info!(target:"app", "Sold token! signature: {tx_id}");
                 });
             }
         },

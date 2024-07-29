@@ -1,6 +1,7 @@
 {
   "rpc_url": "https://mainnet.helius-rpc.com/?api-key=33abf40d-2081-47ab-b52b-b86fe2c8d589",
   "users": ["tiijacrypto"],
+  "license": "LYTRA-DEV-XVAR-EV39-4M7V-RHVM-4W7U-WJPA",
   "buy_config": {
     "amount": 0.01,
     "slippage": 50.0,

@@ -13,3 +13,47 @@
 [2m2024-07-27T11:00:18.153963Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Starting log in
 [2m2024-07-27T11:00:19.736401Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Logged in
 [2m2024-07-27T11:00:19.736816Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Building Should follow
+[2m2024-07-27T11:09:58.769712Z[0m [32m INFO[0m [2msloppy_twitter[0m[2m:[0m kdTWoFNTMfrUyS3CiSicSekvau55dLyWstDG19kdR2rLoPXZQxk3smSYfPznhruEHaB2KZ8AkiravesUqTTXmaP
+[2m2024-07-27T11:11:47.138897Z[0m [32m INFO[0m [2msloppy_twitter[0m[2m:[0m kdTWoFNTMfrUyS3CiSicSekvau55dLyWstDG19kdR2rLoPXZQxk3smSYfPznhruEHaB2KZ8AkiravesUqTTXmaP
+[2m2024-07-27T11:15:22.602447Z[0m [32m INFO[0m [2msloppy_twitter[0m[2m:[0m kdTWoFNTMfrUyS3CiSicSekvau55dLyWstDG19kdR2rLoPXZQxk3smSYfPznhruEHaB2KZ8AkiravesUqTTXmaP
+[2m2024-07-27T11:16:01.957134Z[0m [32m INFO[0m [2msloppy_twitter[0m[2m:[0m kdTWoFNTMfrUyS3CiSicSekvau55dLyWstDG19kdR2rLoPXZQxk3smSYfPznhruEHaB2KZ8AkiravesUqTTXmaP
+[2m2024-07-27T11:16:11.177593Z[0m [32m INFO[0m [2msloppy_twitter[0m[2m:[0m kdTWoFNTMfrUyS3CiSicSekvau55dLyWstDG19kdR2rLoPXZQxk3smSYfPznhruEHaB2KZ8AkiravesUqTTXmaP
+[2m2024-07-27T11:16:13.514073Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Starting log in
+[2m2024-07-27T11:16:15.191585Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Logged in
+[2m2024-07-27T11:16:15.191839Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Building Should follow
+[2m2024-07-27T11:16:15.452684Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Building Should follow DONE
+[2m2024-07-27T11:16:15.513816Z[0m [32m INFO[0m [2msloppy_twitter::ui[0m[2m:[0m got: [
+    UserInfo {
+        username: "tiijacrypto",
+        last_tweet: "",
+        status: "Waiting for Tweet",
+    },
+]
+[2m2024-07-27T11:16:15.513892Z[0m [32m INFO[0m [2msloppy_twitter::ui[0m[2m:[0m new user: [
+    UserInfo {
+        username: "tiijacrypto",
+        last_tweet: "",
+        status: "Waiting for Tweet",
+    },
+]
+[2m2024-07-27T11:16:18.936644Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m New Tweet: get elytra = get happy
+[2m2024-07-27T11:20:00.899444Z[0m [32m INFO[0m [2msloppy_twitter[0m[2m:[0m kdTWoFNTMfrUyS3CiSicSekvau55dLyWstDG19kdR2rLoPXZQxk3smSYfPznhruEHaB2KZ8AkiravesUqTTXmaP
+[2m2024-07-27T11:20:03.076220Z[0m [32m INFO[0m [2msloppy_twitter[0m[2m:[0m kdTWoFNTMfrUyS3CiSicSekvau55dLyWstDG19kdR2rLoPXZQxk3smSYfPznhruEHaB2KZ8AkiravesUqTTXmaP
+[2m2024-07-27T11:20:04.921081Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Starting log in
+[2m2024-07-27T11:20:06.638209Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Logged in
+[2m2024-07-27T11:20:06.638872Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Building Should follow
+[2m2024-07-27T11:20:06.915367Z[0m [32m INFO[0m [2msloppy_twitter::twitter[0m[2m:[0m Building Should follow DONE
+[2m2024-07-27T11:20:07.014626Z[0m [32m INFO[0m [2msloppy_twitter::ui[0m[2m:[0m got: [
+    UserInfo {
+        username: "tiijacrypto",
+        last_tweet: "",
+        status: "Waiting for Tweet",
+    },
+]
+[2m2024-07-27T11:20:07.014680Z[0m [32m INFO[0m [2msloppy_twitter::ui[0m[2m:[0m new user: [
+    UserInfo {
+        username: "tiijacrypto",
+        last_tweet: "",
+        status: "Waiting for Tweet",
+    },
+]

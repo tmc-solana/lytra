@@ -19,6 +19,7 @@ use std::io;
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Arc;
 use tokio::time::{self, sleep, Duration};
+use tui_logger::{TuiLoggerWidget, TuiWidgetState};
 
 use crate::{tasks, State};
 
@@ -127,6 +128,11 @@ pub async fn run_ui(
                 .constraints([Constraint::Percentage(70), Constraint::Percentage(30)].as_ref())
                 .split(size);
 
+            let left_chunks = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
+                .split(chunks[0]);
+
             let main_block = Block::default()
                 .title("lytra v1.0.3")
                 .borders(Borders::ALL)
@@ -167,14 +173,36 @@ pub async fn run_ui(
                 ]))
                 .block(main_block);
 
-            f.render_widget(table, chunks[0]);
+            f.render_widget(table, left_chunks[0]);
 
-            // Wallet Info Block
-            let wallet_info_block = Block::default()
-                .title("Wallet Info")
-                .borders(Borders::ALL)
-                .style(Style::default().fg(Color::White).bg(Color::Black));
-            f.render_widget(wallet_info_block.clone(), chunks[1]);
+            let filter_state = TuiWidgetState::new()
+                .set_default_display_level(log::LevelFilter::Off)
+                .set_level_for_target("app", log::LevelFilter::Debug);
+            // .set_level_for_target("background-task", LevelFilter::Info);
+            let logs_widget = TuiLoggerWidget::default()
+                .block(
+                    Block::default()
+                        .borders(Borders::ALL)
+                        .title("LOGS")
+                        .style(Style::default().fg(Color::White).bg(Color::Black)),
+                )
+                .output_separator('|')
+                .output_timestamp(Some("%F %H:%M:%S%.3f".to_string()))
+                .output_level(Some(tui_logger::TuiLoggerLevelOutput::Long))
+                .style_error(Style::default().fg(Color::Red))
+                .style_debug(Style::default().fg(Color::Green))
+                .style_warn(Style::default().fg(Color::Yellow))
+                .style_trace(Style::default().fg(Color::Magenta))
+                .style_info(Style::default().fg(Color::Cyan))
+                .output_target(false)
+                .output_file(false)
+                .output_line(false)
+                .state(&filter_state);
+
+            f.render_widget(logs_widget, left_chunks[1]);
+
+            // log::info!(target:"app", "TEEEEEEEEEEEEST");
+            // log::error!(target:"app", "PPPPPPPPPPPPPPP");
 
             // Split the Wallet Info Block into three areas
             let wallet_chunks = Layout::default()

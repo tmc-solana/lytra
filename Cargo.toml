@@ -8,7 +8,7 @@ chrono = "0.4.38"
 cookie = "0.18.1"
 crossterm = "0.27.0"
 rand = "0.8.5"
-ratatui = "0.26.3"
+ratatui = "0.27"
 regex = "1.10.5"
 reqwest = { version = "0.12.4", features = ["json", "cookies"] }
 reqwest_cookie_store = "0.8.0"
@@ -26,3 +26,5 @@ tmc-solana-engine = { path = "../tmc-solana-engine" }
 tmc-solana-proto = { path = "../tmc-solana-proto" }
 spl-token = "4.0.0"
 machine-uid = "0.5.2"
+tui-logger = "0.11.1"
+log = "0.4.0"

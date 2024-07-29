@@ -25,6 +25,7 @@ pub struct SellConfig {
 pub struct Config {
     pub rpc_url: String,
     pub users: Vec<String>,
+    pub license: String,
     pub buy_config: BuyConfig,
     pub sell_config: SellConfig,
 }

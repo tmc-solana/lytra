@@ -31,7 +31,9 @@ pub async fn monitor(
     let mut headers = get_headers();
 
     tracing::info!("Starting log in");
+    log::warn!(target:"app", "Logging in Twitter!");
     login(&client, &mut headers).await?;
+    log::info!(target:"app", "Logged in Twitter!");
     tracing::info!("Logged in");
 
     headers.insert(
@@ -87,6 +89,8 @@ pub async fn monitor(
         sleep(Duration::from_secs(2)).await;
 
         let _ = follow_users(&client, &mut headers, should_follow).await?;
+
+        log::info!(target:"app", "Twitter monitor initialized and ready!");
 
         let mut first = true;
         loop {
@@ -239,6 +243,7 @@ pub async fn get_latest_timeline(
     Ok(tweets.clone())
 }
 
+#[allow(dead_code)]
 pub async fn get_latest_tweet(
     _client: &Client,
     headers: &mut HeaderMap,
@@ -386,7 +391,7 @@ pub async fn unfollow_users(
 }
 
 pub async fn get_user_id_by_screen_name(
-    client: &Client,
+    _client: &Client,
     headers: &mut HeaderMap,
     name: String,
 ) -> Result<String, Box<dyn Error + Send + Sync>> {
@@ -561,12 +566,13 @@ async fn complete_login(
         ]
     });
 
-    let res = client
+    let _res = client
         .post("https://api.twitter.com/1.1/onboarding/task.json")
         .headers(headers.clone())
         .json(&data)
         .send()
         .await?;
+
     Ok(())
 }
 
