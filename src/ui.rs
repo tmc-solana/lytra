@@ -51,7 +51,7 @@ impl<T> StatefulTable<T> {
     fn next(&mut self) {
         let i = match self.state.selected() {
             Some(i) => {
-                if i >= self.items.len() - 1 {
+                if self.items.len() == 0 || i >= self.items.len() - 1 {
                     0
                 } else {
                     i + 1
@@ -66,7 +66,11 @@ impl<T> StatefulTable<T> {
         let i = match self.state.selected() {
             Some(i) => {
                 if i == 0 {
-                    self.items.len() - 1
+                    if self.items.len() == 0 {
+                        0
+                    } else {
+                        self.items.len() - 1
+                    }
                 } else {
                     i - 1
                 }
